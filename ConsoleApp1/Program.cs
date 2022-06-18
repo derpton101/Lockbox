@@ -101,25 +101,47 @@ namespace ConsoleApp1
 
             }
         }
-        static string decrypt(string _in)
+        static string decrypt(int[] _in, string key)
         {
-            string _out = _in;
-            char[] buff = new char[_out.Length];
+            char[] buff = new char[_in.Length];
             buff[buff.Length - 1] = '\0';
-            foreach (char i in _out)
+            for (int i = 0; i < buff.Length-1; i++)
             {
-
+                int toStrINT = _in[i];
+                int hashChar = (int)key[i % key.Length];
+                toStrINT = toStrINT / 3;
+                toStrINT = (toStrINT - hashChar) / 2;
+                buff[i] = (char)toStrINT;
             }
+            string _out = new string(buff);
             return _out;
         }
-        static string encrypt(string _in)
+        //ecryption alg (char*2 + hashChar) *3
+        //decryprtion alg (char/3 - hashChar) /2
+
+        static int[] encrypt(string _in, string key)
         {
-            string _out = _in;
-            return _out;
+            int[] buff = new int[_in.Length+1];
+            buff[buff.Length - 1] = '\0';
+            for (int i = 0; i < buff.Length-1; i++)
+            {
+                char toStr = _in[i];
+                int hashChar = (int)key[i % key.Length];
+                int toStrINT = (int)toStr;
+                toStrINT = (toStrINT * 2) + hashChar;
+                toStrINT = toStrINT * 3;
+                buff[i] = (char)toStrINT;
+            }
+            return buff;
+        }
+        static void writeAll()
+        {
+
         }
         static void Main(string[] args)
         {
             
+
             
             if (File.Exists(passFile))
             {
@@ -131,13 +153,26 @@ namespace ConsoleApp1
                 // Create new file
                 newPassword();
             }
+            string _inp = "fuck";
+            int[] encryptTest = encrypt(_inp, pass);
+            Console.WriteLine($"Encrypted");
+            foreach (int i in encryptTest)
+            {
+                Console.Write($"{i.ToString()}:");
+            }
+            //Console.WriteLine("");
+            //string decryptTest = decrypt(encryptTest, pass);
+            //Console.WriteLine($"Decrypted {decryptTest}");
             if (!File.Exists(lFile))
             {
                 StreamWriter init = new StreamWriter(lFile);
                 init.Write(0);
                 init.Close();
             }
-            
+            while (true) // COMMAND LINE MODE
+            {
+
+            }
         }
         /// <summary>
         /// Hashes String in
