@@ -67,23 +67,27 @@ namespace ConsoleApp1
                 Console.Write("Please confirm password\n:");
                 if (pass1 == Console.ReadLine())
                 {
-                    sw.WriteLine(hashString(pass1));
+                    sw.WriteLine(hashString(pass1+genSalt(file))+':'+ genSalt(file));
                     sw.Flush();
                     sw.Close();
                     isCorrect = true;
+                    pass = pass1;
                 }
                 else
                 {
                     Console.WriteLine("Please Try again.\n");
                 }
-                pass = pass1;
+                
             }
             
         }
         static void getPassword(string file)
         {
             StreamReader s = new StreamReader(file);
-            string passHash = s.ReadLine();
+            string hashSalt = s.ReadLine();
+            string[] inter = hashSalt.Split(':');
+            string passHash = inter[0];
+            string salt = inter[1];
             s.Close();
             string password = "";
             while (!access)
@@ -92,7 +96,7 @@ namespace ConsoleApp1
                 Console.Write("Please input your password.\n:");
                 password = Console.ReadLine();
 
-                if (passHash == hashString(password))
+                if (passHash == hashString(password+salt))
                 {
                     access = true;
                 }
@@ -143,8 +147,16 @@ namespace ConsoleApp1
         {
             File.Delete(file);
             StreamWriter w = new StreamWriter(file);
-            if (fileContents == null) return;
-            if (fileContents.Length == 0) return;
+            if (fileContents == null) 
+            {
+                w.Close();
+                return;
+            }
+            if (fileContents.Length == 0)
+            {
+                w.Close();
+                return;
+            }
             for (int i = 0; i < fileContents.Length; i++)
             {
                 
@@ -394,14 +406,21 @@ namespace ConsoleApp1
             Console.Write($"REPLACE[{selection}]>");
             fileContents[selection % fileContents.Length] = Console.ReadLine();
         }
-        /// <summary>
-        /// Hashes String in
-        /// </summary>
-        /// <param name="_in">String to hash</param>
-        /// <returns>SHA256 Hashed String</returns>
+        
 
 
-
+        private static string genSalt(string _in)
+        {
+            SHA512 x = SHA512.Create();
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(_in);
+            bs = x.ComputeHash(bs);
+            StringBuilder s = new StringBuilder();
+            foreach (byte b in bs)
+            {
+                s.Append(b.ToString("x2").ToLower());
+            }
+            return s.ToString();
+        }
 
         private static string hashString(string _in)
         {
@@ -415,5 +434,6 @@ namespace ConsoleApp1
             }
             return s.ToString();
         }
+        
     }
 }
