@@ -2,36 +2,19 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
-
-//Lockbox
 namespace ConsoleApp1
 {
-    //Commands
-    //
-
-
-
     class Program
     {
-        
         static bool access = false;
         const string pFileSuffix = ".pf";
-        const string passFile = "ContainerPass.bin";
         const string lFileSuffix = ".lb";
-        const string lFile = "Lockbox";
         static string[] fileContents;
         static string[] buffer;
-        static string passHash;
         static string pass;
         static string currentOpen;
         const string folder = "lbs\\";
-
         static int ommitted;
-
-        /// <summary>
-        /// Changes size of [fileContents] using [buffer]
-        /// </summary>
-
         static int getLineCount(string filename)
         {
             int x = 0;
@@ -40,21 +23,6 @@ namespace ConsoleApp1
             r.Close();
             return x;
         }
-        static void readFromFile(string file)
-        {
-            int lCount = getLineCount(file);
-            fileContents = new string[lCount];
-            StreamReader s = new StreamReader(file);
-            for (int i = 0; i < lCount; i++)
-            {
-                string inp = s.ReadLine();
-                if (inp == null) throw new IndexOutOfRangeException();
-                fileContents[i] = s.ReadLine();
-            }
-
-        }
-        
-        
         static void newPassword(string file)
         {
             if (File.Exists(file)) File.Delete(file);
@@ -67,7 +35,7 @@ namespace ConsoleApp1
                 Console.Write("Please confirm password\n:");
                 if (pass1 == Console.ReadLine())
                 {
-                    sw.WriteLine(hashString(pass1+genSalt(file))+':'+ genSalt(file));
+                    sw.WriteLine(hashString(pass1 + genSalt(file)) + ':' + genSalt(file));
                     sw.Flush();
                     sw.Close();
                     isCorrect = true;
@@ -77,9 +45,7 @@ namespace ConsoleApp1
                 {
                     Console.WriteLine("Please Try again.\n");
                 }
-                
             }
-            
         }
         static void getPassword(string file)
         {
@@ -96,7 +62,7 @@ namespace ConsoleApp1
                 Console.Write("Please input your password.\n:");
                 password = Console.ReadLine();
 
-                if (passHash == hashString(password+salt))
+                if (passHash == hashString(password + salt))
                 {
                     access = true;
                 }
@@ -106,33 +72,27 @@ namespace ConsoleApp1
                 }
             }
             pass = password;
-            Program.passHash = passHash;
         }
-        
         static string decrypt(int[] _in, string key)
         {
             char[] buff = new char[_in.Length];
-            for (int i = 0; i < buff.Length-1; i++)
+            for (int i = 0; i < buff.Length - 1; i++)
             {
                 int toStrINT = _in[i];
                 int hashChar = (int)key[i % key.Length];
                 toStrINT = toStrINT / 3;
                 toStrINT = (toStrINT - hashChar) / 2;
-                //Console.Write(toStrINT);
-                //Console.Write(" ");
+
                 buff[i] = (char)toStrINT;
             }
             string _out = new string(buff);
             return _out;
         }
-        //ecryption alg (char*2 + hashChar) *3
-        //decryprtion alg (char/3 - hashChar) /2
-
         static int[] encrypt(string _in, string key)
         {
-            int[] buff = new int[_in.Length+1];
+            int[] buff = new int[_in.Length + 1];
             buff[buff.Length - 1] = '\0';
-            for (int i = 0; i < buff.Length-1; i++)
+            for (int i = 0; i < buff.Length - 1; i++)
             {
                 char toStr = _in[i];
                 int hashChar = (int)key[i % key.Length];
@@ -147,7 +107,7 @@ namespace ConsoleApp1
         {
             File.Delete(file);
             StreamWriter w = new StreamWriter(file);
-            if (fileContents == null) 
+            if (fileContents == null)
             {
                 w.Close();
                 return;
@@ -159,12 +119,9 @@ namespace ConsoleApp1
             }
             for (int i = 0; i < fileContents.Length; i++)
             {
-                
-                
                 int[] encr = encrypt(fileContents[i], pass);
                 int l = encr.Length;
-                
-                for(int j = 0; j < l; j++)
+                for (int j = 0; j < l; j++)
                 {
                     w.Write((encr[j].ToString()));
                     if (j == l - 1) continue;
@@ -174,15 +131,6 @@ namespace ConsoleApp1
             }
             w.Close();
         }
-        
-        private bool intHas(int[] arr, int a)
-        {
-            for (int i = 0; i < arr.Length; i++)
-            {
-                if (arr[i] == a) return true;
-            }
-            return false;
-        }
         static void readAll(string file)
         {
             StreamReader r = new StreamReader(file);
@@ -190,17 +138,15 @@ namespace ConsoleApp1
             int iter = 0;
             fileContents = new string[lines];
             string i = " ";
-            
             while (i != null)
             {
                 i = r.ReadLine();
-                if (i == null) break; // HOW THE FUCK DID THIS GET HERE AND HOW DID WE GET HERE?
+                if (i == null) break; 
                 string[] inter = i.Split(':');
                 int[] interINT = new int[inter.Length];
                 for (int k = 0; k < interINT.Length; k++)
                 {
                     interINT[k] = Convert.ToInt32(inter[k]);
-                    //Console.Write($"{inter[k]}.{interINT[k]}\n");
                 }
                 fileContents[iter] = decrypt(interINT, pass);
                 iter++;
@@ -219,29 +165,21 @@ namespace ConsoleApp1
 
                 if (File.Exists(folder + currentOpen + pFileSuffix))
                 {
-                    // Retrieve password and compare it to already known hash
-                    getPassword(folder + currentOpen +pFileSuffix);
+                    getPassword(folder + currentOpen + pFileSuffix);
                 }
                 else
                 {
-                    // Create new file
-                    newPassword(folder + currentOpen +pFileSuffix);
+                    newPassword(folder + currentOpen + pFileSuffix);
                 }
-                //Console.WriteLine("");
-                //string decryptTest = decrypt(encryptTest, pass);
-                //Console.WriteLine($"Decrypted {decryptTest}");
                 if (!File.Exists(folder + currentOpen + lFileSuffix))
                 {
-                    
-
-                    StreamWriter init = new StreamWriter(folder+currentOpen+lFileSuffix);
-                    //init.Write(0);
+                    StreamWriter init = new StreamWriter(folder + currentOpen + lFileSuffix);
                     init.Close();
                 }
 
                 readAll(folder + currentOpen + lFileSuffix);
                 bool cont1 = true;
-                while (cont1) // COMMAND LINE MODE
+                while (cont1)
                 {
                     Console.Write("\n>");
                     string command = Console.ReadLine();
@@ -316,7 +254,7 @@ namespace ConsoleApp1
                 Console.Write("Please input a number.\nOMMIT>");
                 i = Convert.ToInt32(Console.ReadLine());
             }
-            buffer = new string[fileContents.Length-1];
+            buffer = new string[fileContents.Length - 1];
             int iter = 0;
             foreach (string k in fileContents)
             {
@@ -361,8 +299,9 @@ namespace ConsoleApp1
                     return true;
                 }
             }
-            foreach (string i in fileContents) {
-                Console.WriteLine($"[{(iter).ToString()}] \t-- {i}");
+            foreach (string i in fileContents)
+            {
+                Console.WriteLine($"[{iter}] \t-- {i}");
                 iter++;
             }
             return false;
@@ -388,7 +327,7 @@ namespace ConsoleApp1
                 {
                     fileContents[i] = buffer[i];
                 }
-                fileContents[fileContents.Length-1] = append;
+                fileContents[fileContents.Length - 1] = append;
             }
         }
         private static void edit()
@@ -406,9 +345,6 @@ namespace ConsoleApp1
             Console.Write($"REPLACE[{selection}]>");
             fileContents[selection % fileContents.Length] = Console.ReadLine();
         }
-        
-
-
         private static string genSalt(string _in)
         {
             SHA512 x = SHA512.Create();
@@ -421,7 +357,6 @@ namespace ConsoleApp1
             }
             return s.ToString();
         }
-
         private static string hashString(string _in)
         {
             SHA512 x = SHA512.Create();
@@ -434,6 +369,5 @@ namespace ConsoleApp1
             }
             return s.ToString();
         }
-        
     }
 }
