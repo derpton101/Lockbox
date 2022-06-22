@@ -269,7 +269,11 @@ namespace ConsoleApp1
                     continue;
                 }
                 if (currentOpen == "quit") break;
-
+                if (currentOpen == "help")
+                {
+                    getHelp(false);
+                    continue;
+                }
                 if (File.Exists(folder + currentOpen + pFileSuffix))
                 {
                     getPassword(folder + currentOpen + pFileSuffix);
@@ -318,15 +322,7 @@ namespace ConsoleApp1
                             cont1 = false;
                             break;
                         case "help":
-                            Console.WriteLine("newpass\t\t-- set new password");
-                            Console.WriteLine("add\t\t-- add new entry");
-                            Console.WriteLine("edit\t\t-- edit entry via replace");
-                            Console.WriteLine("omit\t\t-- remove entry");
-                            Console.WriteLine("list\t\t-- list entries");
-                            Console.WriteLine("open\t\t-- open different/new file");
-                            Console.WriteLine("quit\t\t-- self explanitory");
-                            Console.WriteLine("help\t\t-- prints this");
-                            Console.WriteLine("list\t\t == Put this in when opening a file and it will list all files and directories");
+                            getHelp(true);
                             break;
                         default:
                             Console.WriteLine("Command doesn't exist.");
@@ -335,6 +331,24 @@ namespace ConsoleApp1
                 }
                 writeAll(folder + currentOpen + lFileSuffix);
                 access = false;
+            }
+        }
+        static void getHelp(bool fileopen)
+        {
+            if (fileopen)
+            {
+                Console.WriteLine("newpass\t\t-- set new password");
+                Console.WriteLine("add\t\t-- add new entry");
+                Console.WriteLine("edit\t\t-- edit entry via replace");
+                Console.WriteLine("omit\t\t-- remove entry");
+                Console.WriteLine("list\t\t-- list entries");
+                Console.WriteLine("open\t\t-- open different/new file");
+                Console.WriteLine("quit\t\t-- self explanitory");
+                Console.WriteLine("help\t\t-- prints this");
+            }
+            else
+            {
+                Console.WriteLine("list\t\t == list all files and directories");
             }
         }
         static bool ommit_CMD()
