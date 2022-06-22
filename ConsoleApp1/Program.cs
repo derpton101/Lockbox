@@ -2,6 +2,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using System.Collections.Generic;
+
 namespace ConsoleApp1
 {
     class Program
@@ -23,15 +25,43 @@ namespace ConsoleApp1
             r.Close();
             return x;
         }
+        static string crimpToLast(char i, string input)
+        {
+            
+            string[] inter = input.Split('\\');
+            if (inter.Length == 2)
+            {
+                return inter[0];
+            }
+            if (inter.Length == 1)
+            {
+                return null;
+            }
+            if (inter.Length == 0)
+            {
+                throw new Exception("Somehow the length was zero");
+            }
+            string x = "";
+            for (int k = 0; k < inter.Length - 1; k++)
+            {
+                x += inter[k];
+            }
+            return null;
+        }
         static void newPassword(string file)
         {
             if (File.Exists(file)) File.Delete(file);
+            if (!File.Exists(file))
+            {
+                Directory.CreateDirectory(crimpToLast('\\', file));
+            }
             StreamWriter sw = new StreamWriter(file);
             bool isCorrect = false;
             while (!isCorrect)
             {
                 Console.Write("Please input a new password\n:");
                 string pass1 = Console.ReadLine();
+                if (pass1 == "") continue;
                 Console.Write("Please confirm password\n:");
                 if (pass1 == Console.ReadLine())
                 {
@@ -153,14 +183,91 @@ namespace ConsoleApp1
             }
             r.Close();
         }
+        static void listFiles()
+        {
+            string[] files = Directory.GetFiles(folder);
+            string[] dirs = Directory.GetDirectories(folder);
+
+
+            List<string> fileList = new List<string>();
+            while (dirs != null)
+            {
+                List<string> dirList = new List<string>();
+                
+                foreach (string dir in dirs)
+                {
+                    dirList.Add(dir);
+                    
+                }
+                int amount = 0;
+                foreach (string d in dirList)
+                {
+                    amount += Directory.GetDirectories(d).Length;
+                }
+                foreach (string dir in dirList)
+                {
+                    string[] fs = Directory.GetFiles(dir);
+                    foreach (string i in fs)
+                    {
+                        fileList.Add(i);
+                    }
+                }
+                if (amount <= 0) break;
+                dirs = new string[amount];
+                int currInt = 0;
+                foreach (string d in dirList)
+                {
+                    string[] buf = Directory.GetDirectories(d);
+                    
+                    for(int i = 0; i < buf.Length; i++)
+                    {
+                        dirs[i + currInt] = buf[i];
+                    }
+                    currInt += buf.Length;
+                }
+                
+
+            }
+            foreach (string file in fileList)
+            {
+                
+                if (file.EndsWith(".lb"))
+                {
+                    Console.Write("[");
+                    for (int i = folder.Length; i < file.Length - 3; i++)
+                    {
+                        Console.Write(file[i]);
+                    }
+                    Console.WriteLine("]");
+                }
+            }
+            foreach (string file in files)
+            {
+                if (file.EndsWith(".lb"))
+                {
+                    Console.Write("[");
+                    for (int i = folder.Length; i < file.Length-3; i++)
+                    {
+                        Console.Write(file[i]);
+                    }
+                    Console.WriteLine("]");
+                }
+            }
+        } 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
             bool cont = true;
             while (cont)
             {
                 Console.Write("Input name of lockbox file\n>>");
                 currentOpen = Console.ReadLine();
+                if (currentOpen == "list")
+                {
+                    listFiles();
+                    continue;
+                }
                 if (currentOpen == "quit") break;
 
                 if (File.Exists(folder + currentOpen + pFileSuffix))
@@ -220,6 +327,19 @@ namespace ConsoleApp1
                             Console.WriteLine("quit\t\t-- self explanitory");
                             Console.WriteLine("help\t\t-- prints this");
                             break;
+                        case "lolololol":
+                            Console.OutputEncoding = Encoding.UTF8;
+                            
+
+                            Console.WriteLine("⢕⢕⢕⢕⢕⠅⢗⢕⠕⣠⠄⣗⢕⢕⠕⢕⢕⢕⠕⢠⣿⠐⢕⢕⢕⠑⢕⢕⠵⢕");
+                            Console.WriteLine("⢕⢕⢕⢕⠁⢜⠕⢁⣴⣿⡇⢓⢕⢵⢐⢕⢕⠕⢁⣾⢿⣧⠑⢕⢕⠄⢑⢕⠅⢕");
+                            Console.WriteLine("⢕⢕⠵⢁⠔⢁⣤⣤⣶⣶⣶⡐⣕⢽⠐⢕⠕⣡⣾⣶⣶⣶⣤⡁⢓⢕⠄⢑⢅⢑");
+                            Console.WriteLine("⠍⣧⠄⣶⣾⣿⣿⣿⣿⣿⣿⣷⣔⢕⢄⢡⣾⣿⣿⣿⣿⣿⣿⣿⣦⡑⢕⢤⠱⢐");
+                            Console.WriteLine("⢠⢕⠅⣾⣿⠋⢿⣿⣿⣿⠉⣿⣿⣷⣦⣶⣽⣿⣿⠈⣿⣿⣿⣿⠏⢹⣷⣷⡅⢐");
+                            Console.WriteLine("⣔⢕⢥⢻⣿⡀⠈⠛⠛⠁⢠⣿⣿⣿⣿⣿⣿⣿⣿⡀⠈⠛⠛⠁⠄⣼⣿⣿⡇⢔");
+                            Console.WriteLine("⢕⢕⢽⢸⢟⢟⢖⢖⢤⣶⡟⢻⣿⡿⠻⣿⣿⡟⢀⣿⣦⢤⢤⢔⢞⢿⢿⣿⠁⢕\n⢕⢕⠅⣐⢕⢕⢕⢕⢕⣿⣿⡄⠛⢀⣦⠈⠛⢁⣼⣿⢗⢕⢕⢕⢕⢕⢕⡏⣘⢕\n⢕⢕⠅⢓⣕⣕⣕⣕⣵⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣷⣕⢕⢕⢕⢕⡵⢀⢕⢕\n⢑⢕⠃⡈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢃⢕⢕⢕");
+                            break;
+
                         default:
                             Console.WriteLine("Command doesn't exist.");
                             break;
@@ -338,6 +458,7 @@ namespace ConsoleApp1
             while (selection == 0)
             {
                 Console.WriteLine("Did you enter 0? if yes type \"y\"");
+                
                 if (Console.ReadLine() == "y") break;
                 Console.Write("Please input a number.\nEDIT>");
                 selection = Convert.ToInt32(Console.ReadLine());
