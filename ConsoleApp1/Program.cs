@@ -15,7 +15,7 @@ namespace ConsoleApp1
         static string[] buffer;
         static string pass;
         static string currentOpen;
-        const string folder = "lbs\\";
+        const string folder = "lbs/";
         static int ommitted;
         static int getLineCount(string filename)
         {
@@ -28,7 +28,7 @@ namespace ConsoleApp1
         static string crimpToLast(char i, string input)
         {
             
-            string[] inter = input.Split('\\');
+            string[] inter = input.Split('/');
             if (inter.Length == 2)
             {
                 return inter[0];
@@ -53,7 +53,7 @@ namespace ConsoleApp1
             if (File.Exists(file)) File.Delete(file);
             if (!File.Exists(file))
             {
-                Directory.CreateDirectory(crimpToLast('\\', file));
+                Directory.CreateDirectory(crimpToLast('/', file));
             }
             StreamWriter sw = new StreamWriter(file);
             bool isCorrect = false;
